@@ -1,6 +1,9 @@
-import {CitiesCard} from "../../components/cities-card/cities-card.tsx";
+import {Logo} from "../../components/logo/logo.tsx";
+import {CitiesCardList} from "../../components/cities-card-list/cities-card-list.tsx";
+import {offersList} from "../../mocks/offers-list.ts";
+import type {OffersList} from "../../types/offer.ts";
 
-type MainPageProps = {rentalOffersCount: number}
+type MainPageProps = {rentalOffersCount: number,offersList:OffersList[]}
 
 function MainPage({rentalOffersCount}:MainPageProps) {
     return (
@@ -9,10 +12,11 @@ function MainPage({rentalOffersCount}:MainPageProps) {
                 <div className="container">
                     <div className="header__wrapper">
                         <div className="header__left">
-                            <a className="header__logo-link header__logo-link--active">
-                                <img className="header__logo" src="img/logo.svg" alt="Rent service logo" width="81"
-                                     height="41"/>
-                            </a>
+                            {/*<a className="header__logo-link header__logo-link--active">*/}
+                            {/*    <img className="header__logo" src="img/logo.svg" alt="Rent service logo" width="81"*/}
+                            {/*         height="41"/>*/}
+                            {/*</a>*/}
+                            <Logo/>
                         </div>
                         <nav className="header__nav">
                             <ul className="header__nav-list">
@@ -94,15 +98,7 @@ function MainPage({rentalOffersCount}:MainPageProps) {
                                 </ul>
                             </form>
                             <div className="cities__places-list places__list tabs__content">
-                                <CitiesCard/>
-
-                                <CitiesCard/>
-
-                                <CitiesCard/>
-
-                                <CitiesCard/>
-
-                                <CitiesCard/>
+                                <CitiesCardList offersList={offersList}/>
 
 
                             </div>
