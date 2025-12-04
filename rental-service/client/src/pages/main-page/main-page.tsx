@@ -1,21 +1,55 @@
 import {Logo} from "../../components/logo/logo.tsx";
 import {CitiesCardList} from "../../components/cities-card-list/cities-card-list.tsx";
-import {offersList} from "../../mocks/offers-list.ts";
 import type {OffersList} from "../../types/offer.ts";
+import {cities} from "../../mocks/city.ts";
+import {useEffect, useState} from "react";
+import Map from "../../components/map/map.tsx"
+import type {City, Point} from "../../types/city.ts";
 
-type MainPageProps = {rentalOffersCount: number,offersList:OffersList[]}
+type MainPageProps = {
+    rentalOffersCount: number;
+    offersList: OffersList[];
+}
 
-function MainPage({rentalOffersCount}:MainPageProps) {
+function MainPage({rentalOffersCount, offersList}: MainPageProps) {
+    const [selectedPoint, setSelectedPoint] = useState<Point | undefined>(undefined);
+    const [city, setCity] = useState<City | null>(null);
+    const [cityPoints, setCityPoints] = useState<Point[]>([]);
+
+    useEffect(() => {
+        const foundCity = cities.find((c: City) => c.title === "Amsterdam");
+        if (foundCity) {
+            setCity(foundCity);
+        }
+
+        // Создаем точки из offersList
+        const points = offersList.map((offer) => ({
+            id: offer.id,
+            title: offer.title,
+            lat: offer.location.latitude,
+            lng: offer.location.longitude,
+        }));
+        setCityPoints(points);
+    }, [offersList]);
+
+    const handleOfferHover = (offerId: string) => {
+        const offer = offersList.find((o) => o.id === offerId);
+        if (offer) {
+            const point = cityPoints.find((p) => p.title === offer.title);
+            setSelectedPoint(point);
+        }
+    };
+
+    const handleOfferLeave = () => {
+        setSelectedPoint(undefined);
+    };
+
     return (
         <div className="page page--gray page--main">
             <header className="header">
                 <div className="container">
                     <div className="header__wrapper">
                         <div className="header__left">
-                            {/*<a className="header__logo-link header__logo-link--active">*/}
-                            {/*    <img className="header__logo" src="img/logo.svg" alt="Rent service logo" width="81"*/}
-                            {/*         height="41"/>*/}
-                            {/*</a>*/}
                             <Logo/>
                         </div>
                         <nav className="header__nav">
@@ -85,11 +119,11 @@ function MainPage({rentalOffersCount}:MainPageProps) {
                             <form className="places__sorting" action="#" method="get">
                                 <span className="places__sorting-caption">Sort by</span>
                                 <span className="places__sorting-type" tabIndex={0}>
-                  Popular
-                  <svg className="places__sorting-arrow" width="7" height="4">
-                    <use href="#icon-arrow-select"></use>
-                  </svg>
-                </span>
+                                    Popular
+                                    <svg className="places__sorting-arrow" width="7" height="4">
+                                        <use href="#icon-arrow-select"></use>
+                                    </svg>
+                                </span>
                                 <ul className="places__options places__options--custom places__options--opened">
                                     <li className="places__option places__option--active" tabIndex={0}>Popular</li>
                                     <li className="places__option" tabIndex={0}>Price: low to high</li>
@@ -97,20 +131,29 @@ function MainPage({rentalOffersCount}:MainPageProps) {
                                     <li className="places__option" tabIndex={0}>Top rated first</li>
                                 </ul>
                             </form>
-                            <div className="cities__places-list places__list tabs__content">
-                                <CitiesCardList offersList={offersList}/>
 
-
-                            </div>
+                            <CitiesCardList
+                                offersList={offersList}
+                                isNearby={false} // Это главная страница, не nearby
+                                onOfferHover={handleOfferHover}
+                                onOfferLeave={handleOfferLeave}
+                            />
                         </section>
                         <div className="cities__right-section">
-                            <section className="cities__map map"></section>
+                            <section className="cities__map map">
+                                {city && cityPoints.length > 0 && (
+                                    <Map
+                                        city={city}
+                                        points={cityPoints}
+                                        selectedPoint={selectedPoint}
+                                    />
+                                )}
+                            </section>
                         </div>
                     </div>
                 </div>
             </main>
         </div>
-
     );
 }
 

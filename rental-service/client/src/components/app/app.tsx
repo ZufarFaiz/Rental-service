@@ -7,6 +7,7 @@ import {OfferPage} from "../../pages/offer-page/offer-page.tsx";
 import {NotFound} from "../not-found/not-found.tsx";
 import {PrivateRoute} from "../private-route/private-route.tsx";
 import type {FullOffer,OffersList} from "../../types/offer.ts";
+import type {ReviewType} from "../../types/reviews.ts";
 
 
 
@@ -15,9 +16,10 @@ type AppMainPageProps = {
     rentalOffersCount: number;
     offersList: OffersList[];
     offers: FullOffer[];
+    reviews:ReviewType[];
 }
 
-function App({rentalOffersCount,offers,offersList}: AppMainPageProps) {
+function App({rentalOffersCount,offers,offersList,reviews}: AppMainPageProps) {
     return (
         <BrowserRouter>
         <Routes>
@@ -25,7 +27,7 @@ function App({rentalOffersCount,offers,offersList}: AppMainPageProps) {
                    element={<MainPage rentalOffersCount={rentalOffersCount} offersList={offersList}/>}/>
             <Route path={AppRoute.Login} element={<LoginPage/>}/>
 
-            <Route path={`${AppRoute.Offer}/:id`} element={<OfferPage offers={offers}/>}/>
+            <Route path={`${AppRoute.Offer}/:id`} element={<OfferPage offers={offers} reviews={reviews}/>}/>
             <Route path="*" element={<NotFound/>}/>
             <Route path={AppRoute.Favorites} element={
                 <PrivateRoute authorizationStatus={AuthorizationStatus.Auth}>

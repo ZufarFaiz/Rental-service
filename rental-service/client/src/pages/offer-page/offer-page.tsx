@@ -1,21 +1,77 @@
+// pages/offer-page/offer-page.tsx
 import {Logo} from "../../components/logo/logo.tsx";
-import type {FullOffer} from "../../types/offer.ts";
-import {Link, useParams} from "react-router-dom";
+import type {FullOffer, OffersList} from "../../types/offer.ts";
+import {useParams} from "react-router-dom";
 import {NotFound} from "../../components/not-found/not-found.tsx";
 import {ReviewForm} from "../../components/review-form/review-form.tsx";
-import {AppRoute} from "../../conts.ts";
+import {ReviewsList} from "../../components/review-list/review-list.tsx";
+import type {ReviewType} from "../../types/reviews.ts";
+import Map from "../../components/map/map.tsx";
+import type {City, Point} from "../../types/city.ts";
+import {CitiesCardList} from "../../components/cities-card-list/cities-card-list.tsx";
 
 type OfferProps = {
     offers: FullOffer[];
+    reviews: ReviewType[];
 }
 
-function OfferPage({offers}: OfferProps) {
-    const params=useParams();
-    const offer = offers.find((item)=>item.id === params.id);
+function OfferPage({offers, reviews}: OfferProps) {
+    const params = useParams();
+    const offer = offers.find((item) => item.id === params.id);
 
     if (!offer) {
         return <NotFound/>;
     }
+
+    // Преобразуем nearby offers в формат OffersList
+    const nearbyOffers: OffersList[] = offers
+        .filter((item) => {
+            // Исключаем текущее предложение И проверяем, что в том же городе
+            return item.id !== offer.id && item.city.name === offer.city.name;
+        })
+        .slice(0, 3) // Берем максимум 3 ближайших
+        .map(item => ({
+            id: item.id,
+            title: item.title,
+            type: item.type,
+            price: item.price,
+            previewImage: item.images[0],
+            isPremium: item.isPremium,
+            rating: item.rating,
+            city: item.city,
+            location: item.location,
+            isFavorite: item.isFavorite
+        }));
+
+    const offerReviews: ReviewType[] = reviews.filter((item) => item.offerId === offer.id);
+
+    // Создаем city для карты
+    const city: City = {
+        title: offer.city.name,
+        lat: offer.city.location.latitude,
+        lng: offer.city.location.longitude,
+        zoom: offer.city.location.zoom,
+    }
+
+    // Создаем точки для карты
+    const cityPoints: Point[] = [
+        {
+            title: offer.title,
+            lat: offer.location.latitude,
+            lng: offer.location.longitude,
+        },
+        ...nearbyOffers.map(item => ({
+            title: item.title,
+            lat: item.location.latitude,
+            lng: item.location.longitude,
+        }))
+    ];
+
+    const selectedPoint: Point = {
+        title: offer.title,
+        lat: offer.location.latitude,
+        lng: offer.location.longitude,
+    };
 
     return (
         <div className="page">
@@ -59,11 +115,11 @@ function OfferPage({offers}: OfferProps) {
                     </div>
                     <div className="offer__container container">
                         <div className="offer__wrapper">
-                            {offer.isPremium ? (
+                            {offer.isPremium && (
                                 <div className="offer__mark">
                                     <span>Premium</span>
                                 </div>
-                            ) : null}
+                            )}
                             <div className="offer__name-wrapper">
                                 <h1 className="offer__name">
                                     {offer.title}
@@ -111,17 +167,22 @@ function OfferPage({offers}: OfferProps) {
                                 <h2 className="offer__host-title">Meet the host</h2>
                                 <div className="offer__host-user user">
                                     <div className={`offer__avatar-wrapper ${offer.host.isPro ? 'offer__avatar-wrapper--pro' : ''} user__avatar-wrapper`}>
-                                        <img className="offer__avatar user__avatar" src={offer.host.avatarUrl}
-                                             width="74" height="74" alt="Host avatar"/>
+                                        <img
+                                            className="offer__avatar user__avatar"
+                                            src={offer.host.avatarUrl}
+                                            width="74"
+                                            height="74"
+                                            alt="Host avatar"
+                                        />
                                     </div>
                                     <span className="offer__user-name">
                                         {offer.host.name}
                                     </span>
-                                    {offer.host.isPro ? (
+                                    {offer.host.isPro && (
                                         <span className="offer__user-status">
                                             Pro
                                         </span>
-                                    ) : null}
+                                    )}
                                 </div>
                                 <div className="offer__description">
                                     <p className="offer__text">
@@ -129,69 +190,34 @@ function OfferPage({offers}: OfferProps) {
                                     </p>
                                 </div>
                             </div>
-                            {/* Временный заглушка для отзывов - удалить когда добавится тип Review */}
-                            <section className="offer__reviews reviews">
-                                <h2 className="reviews__title">Reviews &middot; <span
-                                    className="reviews__amount">0</span></h2>
-                                <ul className="reviews__list">
-                                    {/* Отзывы временно удалены */}
-                                </ul>
-                                <ReviewForm/>
-                            </section>
+
+                            <ReviewsList reviews={offerReviews} />
+                            <ReviewForm/>
                         </div>
                     </div>
-                    <section className="offer__map map"></section>
+
+                    {/* Секция карты */}
+                    <section className="offer__map map">
+                        {city && cityPoints.length > 0 && (
+                            <Map
+                                city={city}
+                                points={cityPoints}
+                                selectedPoint={selectedPoint} // Здесь selectedPoint всегда определен
+                            />
+                        )}
+                    </section>
                 </section>
+
+                {/* Секция "Other places in the neighbourhood" */}
                 <div className="container">
                     <section className="near-places places">
                         <h2 className="near-places__title">Other places in the neighbourhood</h2>
-                        <div className="near-places__list places__list">
-                            {offers.slice(1, 4).map((nearbyOffer) => (
-                                <article key={nearbyOffer.id} className="near-places__card place-card">
-                                    {nearbyOffer.isPremium ? (
-                                        <div className="place-card__mark">
-                                            <span>Premium</span>
-                                        </div>
-                                    ) : null}
-                                    <div className="near-places__image-wrapper place-card__image-wrapper">
-                                        {/*<a href="#">*/}
-                                        {/*    /!* Используем первое изображение из массива images вместо previewImage *!/*/}
-                                        {/*    <img className="place-card__image" src={nearbyOffer.images[0]} width="260" height="200"*/}
-                                        {/*         alt="Place image"/>*/}
-                                        {/*</a>*/}
-                                        <Link to={`${AppRoute.Offer}/${nearbyOffer.id}`}>
-                                            <img className="place-card__image" src={nearbyOffer.images[0]} width="260" height="200" alt="Place image"/>
-                                        </Link>
-                                    </div>
-                                    <div className="place-card__info">
-                                        <div className="place-card__price-wrapper">
-                                            <div className="place-card__price">
-                                                <b className="place-card__price-value">&euro;{nearbyOffer.price}</b>
-                                                <span className="place-card__price-text">&#47;&nbsp;night</span>
-                                            </div>
-                                            <button
-                                                className="place-card__bookmark-button button"
-                                                type="button">
-                                                <svg className="place-card__bookmark-icon" width="18" height="19">
-                                                    <use href="#icon-bookmark"></use>
-                                                </svg>
-                                                <span className="visually-hidden">In bookmarks</span>
-                                            </button>
-                                        </div>
-                                        <div className="place-card__rating rating">
-                                            <div className="place-card__stars rating__stars">
-                                                <span style={{width: `${nearbyOffer.rating * 20}%`}}></span>
-                                                <span className="visually-hidden">Rating</span>
-                                            </div>
-                                        </div>
-                                        <h2 className="place-card__name">
-                                            <a href="#">{nearbyOffer.title}</a>
-                                        </h2>
-                                        <p className="place-card__type">{nearbyOffer.type}</p>
-                                    </div>
-                                </article>
-                            ))}
-                        </div>
+
+                        {/* Используем переиспользуемый CitiesCardList с флагом isNearby */}
+                        <CitiesCardList
+                            offersList={nearbyOffers}
+                            isNearby={true}
+                        />
                     </section>
                 </div>
             </main>

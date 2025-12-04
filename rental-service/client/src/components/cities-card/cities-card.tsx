@@ -1,6 +1,7 @@
-import {AppRoute} from "../../conts.ts";
+// cities-card/cities-card.tsx
 import {Link} from "react-router-dom";
 import {useState} from "react";
+import {AppRoute} from "../../conts.ts";
 
 type CitiesCardProps = {
     id: string;
@@ -10,20 +11,67 @@ type CitiesCardProps = {
     isPremium: boolean;
     previewImage: string;
     rating: number;
+    isNearby?: boolean; // Добавляем опциональный пропс для nearby карточек
+    onMouseOver?: (id: string) => void;
+    onMouseOut?: () => void;
 }
 
-function CitiesCard({ id, title, type, price, previewImage, isPremium, rating }: CitiesCardProps){
-    const[,setOfferId]=useState('');
+function CitiesCard({
+                        id,
+                        title,
+                        type,
+                        price,
+                        previewImage,
+                        isPremium,
+                        rating,
+                        isNearby = false,
+                        onMouseOver,
+                        onMouseOut
+                    }: CitiesCardProps){
+    const [, setActiveOfferId] = useState('');
+
+    const handleMouseOver = () => {
+        setActiveOfferId(id);
+        if (onMouseOver) {
+            onMouseOver(id);
+        }
+    };
+
+    const handleMouseOut = () => {
+        setActiveOfferId('');
+        if (onMouseOut) {
+            onMouseOut();
+        }
+    };
+
+    const imageWrapperClass = isNearby
+        ? "near-places__image-wrapper place-card__image-wrapper"
+        : "cities__image-wrapper place-card__image-wrapper";
+
+    const articleClass = isNearby
+        ? "near-places__card place-card"
+        : "cities__card place-card";
 
     return (
-        <article className="cities__card place-card" onMouseOver={() => setOfferId(id)} onMouseOut={() => setOfferId('')}>
-            {isPremium ? (
+        <article
+            className={articleClass}
+            onMouseOver={handleMouseOver}
+            onMouseOut={handleMouseOut}
+        >
+            {isPremium && (
                 <div className="place-card__mark">
                     <span>Premium</span>
-                </div>) : null}
-            <div className="cities__image-wrapper place-card__image-wrapper">
+                </div>
+            )}
+            <div className={imageWrapperClass}>
                 <Link to={`${AppRoute.Offer}/${id}`}>
-                    <img className="place-card__image" src={previewImage} width="260" height="200" alt="Place image"/>
+                    <img
+                        className="place-card__image"
+                        src={previewImage}
+                        width="260"
+                        height="200"
+                        alt="Place image"
+                    />
                 </Link>
             </div>
 
@@ -42,19 +90,19 @@ function CitiesCard({ id, title, type, price, previewImage, isPremium, rating }:
                 </div>
                 <div className="place-card__rating rating">
                     <div className="place-card__stars rating__stars">
-                        <span style={{width: "80%"}}>{rating}</span>
+                        <span style={{width: `${rating * 20}%`}}></span>
                         <span className="visually-hidden">Rating</span>
                     </div>
                 </div>
                 <h2 className="place-card__name">
-                    {/*<a href="#">Beautiful &amp; luxurious apartment at great location</a>*/}
-                    <a href={`/offers/${id}`}>{title}</a>
+                    <Link to={`${AppRoute.Offer}/${id}`}>
+                        {title}
+                    </Link>
                 </h2>
                 <p className="place-card__type">{type}</p>
             </div>
         </article>
-
-    )
+    );
 }
 
-export  {CitiesCard};
+export {CitiesCard};
