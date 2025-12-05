@@ -1,4 +1,3 @@
-// cities-card-list/cities-card-list.tsx
 import type {OffersList} from "../../types/offer.ts";
 import {CitiesCard} from "../cities-card/cities-card.tsx";
 

@@ -1,4 +1,4 @@
-// cities-card/cities-card.tsx
+
 import {Link} from "react-router-dom";
 import {useState} from "react";
 import {AppRoute} from "../../conts.ts";
@@ -11,7 +11,7 @@ type CitiesCardProps = {
     isPremium: boolean;
     previewImage: string;
     rating: number;
-    isNearby?: boolean; // Добавляем опциональный пропс для nearby карточек
+    isNearby?: boolean;
     onMouseOver?: (id: string) => void;
     onMouseOut?: () => void;
 }

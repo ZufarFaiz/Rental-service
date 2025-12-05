@@ -1,4 +1,3 @@
-// pages/offer-page/offer-page.tsx
 import {Logo} from "../../components/logo/logo.tsx";
 import type {FullOffer, OffersList} from "../../types/offer.ts";
 import {useParams} from "react-router-dom";
@@ -23,13 +22,12 @@ function OfferPage({offers, reviews}: OfferProps) {
         return <NotFound/>;
     }
 
-    // Преобразуем nearby offers в формат OffersList
+
     const nearbyOffers: OffersList[] = offers
         .filter((item) => {
-            // Исключаем текущее предложение И проверяем, что в том же городе
             return item.id !== offer.id && item.city.name === offer.city.name;
         })
-        .slice(0, 3) // Берем максимум 3 ближайших
+        .slice(0, 3)
         .map(item => ({
             id: item.id,
             title: item.title,
@@ -45,7 +43,6 @@ function OfferPage({offers, reviews}: OfferProps) {
 
     const offerReviews: ReviewType[] = reviews.filter((item) => item.offerId === offer.id);
 
-    // Создаем city для карты
     const city: City = {
         title: offer.city.name,
         lat: offer.city.location.latitude,
@@ -53,7 +50,6 @@ function OfferPage({offers, reviews}: OfferProps) {
         zoom: offer.city.location.zoom,
     }
 
-    // Создаем точки для карты
     const cityPoints: Point[] = [
         {
             title: offer.title,
@@ -196,24 +192,21 @@ function OfferPage({offers, reviews}: OfferProps) {
                         </div>
                     </div>
 
-                    {/* Секция карты */}
-                    <section className="offer__map map">
-                        {city && cityPoints.length > 0 && (
+                    <section className="offer__map map" style={{width: '1144px', margin: '0 auto', display: 'block'}}>
+                    {city && cityPoints.length > 0 && (
                             <Map
                                 city={city}
                                 points={cityPoints}
-                                selectedPoint={selectedPoint} // Здесь selectedPoint всегда определен
+                                selectedPoint={selectedPoint}
                             />
                         )}
                     </section>
                 </section>
 
-                {/* Секция "Other places in the neighbourhood" */}
                 <div className="container">
                     <section className="near-places places">
                         <h2 className="near-places__title">Other places in the neighbourhood</h2>
 
-                        {/* Используем переиспользуемый CitiesCardList с флагом isNearby */}
                         <CitiesCardList
                             offersList={nearbyOffers}
                             isNearby={true}

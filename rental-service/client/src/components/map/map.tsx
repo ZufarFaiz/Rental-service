@@ -1,18 +1,25 @@
-import  {useRef, useEffect} from 'react';
+import { useRef, useEffect } from 'react';
 import leaflet from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import useMap from './use-map';
-import {URL_MARKER_DEFAULT, URL_MARKER_CURRENT} from './const';
+import { URL_MARKER_DEFAULT, URL_MARKER_CURRENT } from './const';
+import type { City, Point } from '../../types/city.ts';
 
-function Map({city, points, selectedPoint}:any) {
-    const mapRef = useRef(null);
+type MapProps = {
+    city: City;
+    points: Point[];
+    selectedPoint?: Point;
+};
+
+function Map({ city, points, selectedPoint }: MapProps) {
+    const mapRef = useRef<HTMLDivElement>(null);
     const map = useMap(mapRef, city);
-    const markersRef = useRef<leaflet.Marker[]>([]); // Храним ссылки на маркеры
+    const markersRef = useRef<leaflet.Marker[]>([]);
 
     const defaultCustomIcon = leaflet.icon({
         iconUrl: URL_MARKER_DEFAULT,
         iconSize: [40, 40],
-        iconAnchor: [20, 40], // Исправлено с 80 на 40
+        iconAnchor: [20, 40],
     });
 
     const currentCustomIcon = leaflet.icon({
@@ -23,36 +30,33 @@ function Map({city, points, selectedPoint}:any) {
 
     useEffect(() => {
         if (map) {
-            // Удаляем все старые маркеры
             markersRef.current.forEach((marker) => {
                 marker.remove();
             });
-            markersRef.current = []; // Очищаем массив
+            markersRef.current = [];
 
-            // Добавляем новые маркеры
-            points.forEach((point:any) => {
-                const marker = leaflet
-                    .marker({
-                        lat: point.lat,
-                        lng: point.lng,
-                    }, {
-                        icon: (selectedPoint && point.title === selectedPoint.title)
+            points.forEach((point) => {
+                const marker = leaflet.marker(
+                    [point.lat, point.lng],
+                    {
+                        icon: (selectedPoint &&
+                            point.lat === selectedPoint.lat &&
+                            point.lng === selectedPoint.lng)
                             ? currentCustomIcon
                             : defaultCustomIcon,
-                    })
-                    .addTo(map);
+                    }
+                ).addTo(map);
 
-                markersRef.current.push(marker); // Сохраняем ссылку
+                markersRef.current.push(marker);
             });
         }
     }, [map, points, selectedPoint]);
 
     return (
         <div
-            style={{height: '100%'}}
+            style={{ height: '100%' }}
             ref={mapRef}
-        >
-        </div>
+        />
     );
 }
 

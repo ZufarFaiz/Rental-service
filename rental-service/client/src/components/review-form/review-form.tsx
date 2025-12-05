@@ -14,7 +14,6 @@ function ReviewForm() {
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        // здесь позже можно будет отправлять данные
         console.log({ rating, review });
     };
 
