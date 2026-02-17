@@ -2,12 +2,11 @@ package server.model.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import server.model.dto.response.Location;
 import server.model.enums.City;
 import server.model.enums.Feature;
 import server.model.enums.OfferType;
@@ -19,7 +18,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "offers")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Offer {
@@ -130,5 +130,16 @@ public class Offer {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public Location getLocation() {
+        return new Location(this.latitude, this.longitude);
+    }
+
+    public void setLocation(Location location) {
+        if (location != null) {
+            this.latitude = location.getLatitude();
+            this.longitude = location.getLongitude();
+        }
     }
 }

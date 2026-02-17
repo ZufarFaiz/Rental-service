@@ -21,6 +21,7 @@ public class UserResponse {
     private String avatar;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean isPro;
 
     private Integer offersCount;
     private Integer reviewsCount;

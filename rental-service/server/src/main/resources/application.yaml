@@ -1,14 +1,31 @@
 
 server:
   port: 8080
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+      enabled: true
+  error:
+    include-stacktrace: always
+    include-message: always
+    include-exception: true
 
 spring:
-
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+      enabled: true
+      file-size-threshold: 2KB
+      location: ${java.io.tmpdir}
   datasource:
     url: jdbc:postgresql://localhost:5432/springdb
     username: springuser
     password: password123
-
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
 
   jpa:
     hibernate:
@@ -17,9 +34,45 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          batch_size: 20
 
+  security:
+    filter:
+      dispatcher-types: request, async, error
 
 logging:
   level:
+    server: DEBUG
+    server.controller: DEBUG
+    server.service: DEBUG
+    server.repository: DEBUG
+
+
+    org.springframework.web: DEBUG
+    org.springframework.web.servlet: DEBUG
+    org.springframework.web.servlet.mvc: DEBUG
+
+    org.springframework.security: DEBUG
+
     org.hibernate.SQL: DEBUG
-    com.yourapp: INFO
+    org.hibernate.type.descriptor.sql: TRACE
+    org.hibernate.orm.jdbc.bind: TRACE
+
+    org.springframework.jdbc.core: TRACE
+    org.springframework.jdbc.core.JdbcTemplate: DEBUG
+
+    org.springframework.web.multipart: DEBUG
+
+
+    org.springframework.boot.autoconfigure: DEBUG
+    org.springframework.boot.diagnostics: DEBUG
+
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{40} - %msg%n"
+
+file:
+  upload-dir: ./static
+
+debug: true
