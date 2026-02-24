@@ -20,7 +20,7 @@ import java.util.List;
 public class ReviewController {
     private final ReviewServiceImpl reviewService;
 
-    @PostMapping("/add-review")
+    @PostMapping("{offerId}/add-review")
     public ResponseEntity<String> addReview(@Valid @RequestBody ReviewRequest request, @PathVariable Long offerId,
             @AuthenticationPrincipal UserDetails userDetails){
         return ResponseEntity.ok(reviewService.addReview(request,offerId,userDetails));
