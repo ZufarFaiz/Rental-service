@@ -76,3 +76,8 @@ file:
   upload-dir: ./static
 
 debug: true
+
+app:
+  jwt:
+    secret: "mySuperSecretKeyForJWTThatIsAtLeast32CharactersLong!"
+    access-token-expiration: 86400000 # 24 часа в миллисекундах

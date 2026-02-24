@@ -6,7 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import server.model.dto.request.ReviewRequest;
+import server.model.dto.response.ReviewResponse;
 import server.service.impl.ReviewServiceImpl;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -18,5 +21,10 @@ public class ReviewController {
     @PostMapping("/add-review")
     public ResponseEntity<String> addReview(@Valid @RequestBody ReviewRequest request){
         return ResponseEntity.ok(reviewService.addReview(request));
+    }
+
+    @GetMapping("/{offerId}")
+    public ResponseEntity<List<ReviewResponse>> allReviews(@PathVariable Long offerId){
+        return ResponseEntity.ok(reviewService.getAllReviews(offerId));
     }
 }

@@ -39,4 +39,14 @@ public class OfferController {
     public ResponseEntity<FullOfferResponse> getFullOffer(@PathVariable Long offerId){
         return ResponseEntity.ok(offerService.getFullOffer(offerId));
     }
+
+    @GetMapping("/favorite")
+    public ResponseEntity<List<OfferResponse>> getFavoriteOffers(){
+        return ResponseEntity.ok(offerService.getFavoriteOffers());
+    }
+
+    @PostMapping("/favorite/{offerId}/{status}")
+    public ResponseEntity<OfferResponse> toggleFavorite(@PathVariable Long offerId, boolean status){
+        return ResponseEntity.ok(offerService.toggleFavorite(offerId,status));
+    }
 }

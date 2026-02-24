@@ -22,6 +22,7 @@ public class UserResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isPro;
+    private String token;
 
     private Integer offersCount;
     private Integer reviewsCount;

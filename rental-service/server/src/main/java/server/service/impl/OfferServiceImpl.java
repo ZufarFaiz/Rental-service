@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import server.exception.NotFoundException;
 import server.model.dto.request.OfferRequest;
 import server.model.dto.response.CityDto;
 import server.model.dto.response.FullOfferResponse;
@@ -30,7 +31,7 @@ public class OfferServiceImpl implements OfferService {
 
     public OfferResponse createOffer(OfferRequest request, MultipartFile previewImage, List<MultipartFile> photos) {
         User author = userRepository.findById(request.getAuthorId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         Offer offer = new Offer();
         offer.setTitle(request.getTitle());
@@ -67,6 +68,19 @@ public class OfferServiceImpl implements OfferService {
         return offerRepository.findAll().stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
+    }
+
+    public List<OfferResponse> getFavoriteOffers(){
+        return offerRepository.findByIsFavorite(true).stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+
+    public OfferResponse toggleFavorite(Long offerId,boolean isFavorite){
+        Offer offer = offerRepository.findById(offerId).orElseThrow(()->new NotFoundException("Offer not found"));
+        offer.setFavorite(isFavorite);
+        Offer savedOffer = offerRepository.save(offer);
+        return convertToResponse(savedOffer);
     }
 
     private OfferResponse convertToResponse(Offer offer) {
@@ -134,7 +148,7 @@ public class OfferServiceImpl implements OfferService {
 
     public FullOfferResponse getFullOffer(Long offerId){
         Offer offer = offerRepository.findById(offerId).orElseThrow(
-                ()-> new RuntimeException("Offer not found")
+                ()-> new NotFoundException("Offer not found")
         );
         return convertToFullResponse(offer);
     }
