@@ -3,7 +3,6 @@ package server.model.dto.request;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
 
 @Data
 public class ReviewRequest {
@@ -15,10 +14,4 @@ public class ReviewRequest {
     @Min(value = 1)
     @Max(value = 5)
     private Integer rating;
-
-    @NotNull
-    private Long offerId;
-
-    @NotNull
-    private Long userId;
 }

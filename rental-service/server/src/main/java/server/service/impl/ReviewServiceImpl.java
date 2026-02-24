@@ -1,6 +1,7 @@
 package server.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import server.exception.NotFoundException;
 import server.model.dto.request.ReviewRequest;
@@ -24,11 +25,12 @@ public class ReviewServiceImpl {
     private final UserRepository userRepository;
     private final OfferRepository offerRepository;
 
-    public String addReview(ReviewRequest request){
+    public String addReview(ReviewRequest request, Long offerId, UserDetails userDetails){
 
-        User author = userRepository.findById(request.getUserId()).orElseThrow(()-> new NotFoundException("User not found"));
+        User author = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(()->
+                new NotFoundException("User not found"));
 
-        Offer offer = offerRepository.findById(request.getOfferId()).orElseThrow(()->new NotFoundException("Offer not found"));
+        Offer offer = offerRepository.findById(offerId).orElseThrow(()->new NotFoundException("Offer not found"));
 
         Review review = new Review();
         review.setAuthor(author);

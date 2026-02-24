@@ -3,6 +3,8 @@ package server.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import server.model.dto.request.ReviewRequest;
@@ -19,8 +21,9 @@ public class ReviewController {
     private final ReviewServiceImpl reviewService;
 
     @PostMapping("/add-review")
-    public ResponseEntity<String> addReview(@Valid @RequestBody ReviewRequest request){
-        return ResponseEntity.ok(reviewService.addReview(request));
+    public ResponseEntity<String> addReview(@Valid @RequestBody ReviewRequest request, @PathVariable Long offerId,
+            @AuthenticationPrincipal UserDetails userDetails){
+        return ResponseEntity.ok(reviewService.addReview(request,offerId,userDetails));
     }
 
     @GetMapping("/{offerId}")
