@@ -8,6 +8,8 @@ import {NotFound} from "../not-found/not-found.tsx";
 import {PrivateRoute} from "../private-route/private-route.tsx";
 import type {FullOffer,OffersList} from "../../types/offer.ts";
 import type {ReviewType} from "../../types/reviews.ts";
+import {useAppSelector} from "../../hooks";
+import {LoadingScreen} from "../loading-screen/loading-screen.tsx";
 
 
 
@@ -20,6 +22,13 @@ type AppMainPageProps = {
 }
 
 function App({rentalOffersCount,offers,offersList,reviews}: AppMainPageProps) {
+    const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
+    const isOffersDataLoading = useAppSelector((state) => state.isOffersDataLoading);
+    if (authorizationStatus === AuthorizationStatus.UnknownAuth || isOffersDataLoading) {
+        return (
+            <LoadingScreen />
+        );
+    }
     return (
         <BrowserRouter>
         <Routes>
