@@ -28,7 +28,8 @@ function CitiesCardList({
                     type={item.type}
                     price={item.price}
                     previewImage={item.previewImage}
-                    isPremium={item.isPremium}
+                    isPremium={item.premium}
+                    isFavorite={item.favorite}
                     rating={item.rating}
                     isNearby={isNearby}
                     onMouseOver={onOfferHover}
