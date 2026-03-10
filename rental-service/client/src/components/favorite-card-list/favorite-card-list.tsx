@@ -1,14 +1,14 @@
-import type {OffersList} from "../../types/offer.ts";
-import {FavoritesCard} from "../favorite-card/favorite-card.tsx";
+// components/favorite-card-list/favorite-card-list.tsx
+import type { OffersList } from "../../types/offer";
+import { FavoritesCard } from "../favorite-card/favorite-card";
 
 type FavoritesCardListProps = {
     offersList: OffersList[];
 };
 
 function FavoritesCardList({ offersList }: FavoritesCardListProps){
-    const favoriteOffers = offersList.filter((offer) => offer.isFavorite);
-
-    const offersByCity = favoriteOffers.reduce<Record<string, OffersList[]>>((acc, offer) => {
+    // Группируем по городам
+    const offersByCity = offersList.reduce<Record<string, OffersList[]>>((acc, offer) => {
         const cityName = offer.city.name;
         if (!acc[cityName]) {
             acc[cityName] = [];
@@ -39,6 +39,7 @@ function FavoritesCardList({ offersList }: FavoritesCardListProps){
                                 previewImage={offer.previewImage}
                                 isPremium={offer.isPremium}
                                 rating={offer.rating}
+                                isFavorite={offer.isFavorite}
                             />
                         ))}
                     </div>

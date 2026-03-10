@@ -27,23 +27,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        String method = request.getMethod();
+
+        // Не фильтруем OPTIONS запросы
+        if (method.equals("OPTIONS")) {
+            return true;
+        }
+
+        // Не фильтруем публичные эндпоинты
+        return path.startsWith("/api/users/login") ||
+                path.startsWith("/api/users/register") ||
+                path.startsWith("/api/users/check") ||
+                path.startsWith("/api/offers") ||
+                path.startsWith("/static/");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        if (request.getMethod().equals("OPTIONS")) {
-            response.setStatus(HttpServletResponse.SC_OK);
-            filterChain.doFilter(request, response);
-            return;
-        }
-
+        // Этот код выполняется ТОЛЬКО для защищенных эндпоинтов
         try {
             final String authHeader = request.getHeader("Authorization");
 
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                filterChain.doFilter(request, response);
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"message\": \"Токен не предоставлен\"}");
                 return;
             }
 

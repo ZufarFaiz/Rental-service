@@ -1,13 +1,11 @@
-import type {ReviewType} from "../../types/reviews.ts";
+// components/review/review.tsx
+import type { ReviewType } from "../../types/reviews";
 
-
-type ReviewProps ={
+type ReviewProps = {
     review: ReviewType;
 }
 
-function Review(props: ReviewProps) {
-    const { review } = props;
-
+function Review({ review }: ReviewProps) {
     return (
         <li className="reviews__item">
             <div className="reviews__user user">
@@ -21,13 +19,16 @@ function Review(props: ReviewProps) {
                     />
                 </div>
                 <span className="reviews__user-name">
-          {review.user.name}
-        </span>
+                    {review.user.name}
+                </span>
+                {review.user.isPro && (
+                    <span className="reviews__user-status">Pro</span>
+                )}
             </div>
             <div className="reviews__info">
                 <div className="reviews__rating rating">
                     <div className="reviews__stars rating__stars">
-                        <span style={{width: `${review.rating * 20}%`}}></span>
+                        <span style={{ width: `${Math.round(review.rating) * 20}%` }} />
                         <span className="visually-hidden">Rating</span>
                     </div>
                 </div>

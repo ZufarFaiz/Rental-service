@@ -1,32 +1,50 @@
 import {type FormEvent, useRef} from "react";
 import {AppRoute, AuthorizationStatus} from "../../conts.ts";
-import {Link, Navigate} from "react-router-dom";
+import {Link, Navigate, useNavigate} from "react-router-dom"; // Добавили useNavigate
 import type {AuthData} from "../../types/user-data.ts";
 import {loginAction} from "../../store/api-action.ts";
 import {getAuthorizationStatus} from "../../store/selector.ts";
 import {useAppDispatch, useAppSelector} from "../../hooks";
 import {Logo} from "../../components/logo/logo.tsx";
 
-
 function LoginPage(){
     const loginRef = useRef<HTMLInputElement | null>(null);
     const passwordRef = useRef<HTMLInputElement | null>(null);
 
     const dispatch = useAppDispatch();
+    const navigate = useNavigate(); // Добавили для навигации после успеха
 
     const userAuthorizationStatus = useAppSelector(getAuthorizationStatus);
+
     if (userAuthorizationStatus === AuthorizationStatus.Auth) {
-        return <Navigate to={ AppRoute.Main }/>;
+        return <Navigate to={AppRoute.Main}/>;
     }
 
     const onSubmit = (authData: AuthData) => {
-        dispatch(loginAction(authData));
+        console.log('🚀 Dispatching loginAction with:', authData.email);
+
+        dispatch(loginAction(authData))
+            .unwrap()
+            .then((data) => {
+                console.log('✅ Login successful, received:', data);
+                console.log('🔑 Token in response:', data.token);
+                console.log('🔍 Checking localStorage after login:', localStorage.getItem('rent-service-token'));
+                navigate(AppRoute.Main);
+            })
+            .catch((error) => {
+                console.error('❌ Login failed:', error);
+            });
     };
 
     const handleSubmit = (evt: FormEvent<HTMLFormElement>) => {
         evt.preventDefault();
 
         if (loginRef.current && passwordRef.current) {
+            console.log('📝 Form submitted with:', {
+                email: loginRef.current.value,
+                password: passwordRef.current.value
+            });
+
             onSubmit({
                 email: loginRef.current.value,
                 password: passwordRef.current.value,
@@ -50,21 +68,39 @@ function LoginPage(){
                 <div className="page__login-container container">
                     <section className="login">
                         <h1 className="login__title">Sign in</h1>
-                        <form className="login__form form" action="#" method="post" onSubmit={ handleSubmit }>
+                        <form className="login__form form" action="#" method="post" onSubmit={handleSubmit}>
                             <div className="login__input-wrapper form__input-wrapper">
                                 <label className="visually-hidden">E-mail</label>
-                                <input ref={ loginRef } className="login__input form__input" type="email" name="email" id="email" placeholder="Email" required/>
+                                <input
+                                    ref={loginRef}
+                                    className="login__input form__input"
+                                    type="email"
+                                    name="email"
+                                    id="email"
+                                    placeholder="Email"
+                                    required
+                                />
                             </div>
                             <div className="login__input-wrapper form__input-wrapper">
                                 <label className="visually-hidden">Password</label>
-                                <input ref={ passwordRef } className="login__input form__input" type="password" name="password" id="password" placeholder="Password" required/>
+                                <input
+                                    ref={passwordRef}
+                                    className="login__input form__input"
+                                    type="password"
+                                    name="password"
+                                    id="password"
+                                    placeholder="Password"
+                                    required
+                                />
                             </div>
-                            <button className="login__submit form__submit button" type="submit">Sign in</button>
+                            <button className="login__submit form__submit button" type="submit">
+                                Sign in
+                            </button>
                         </form>
                     </section>
                     <section className="locations locations--login locations--current">
                         <div className="locations__item">
-                            <Link className="locations__item-link" to={ AppRoute.Main }>
+                            <Link className="locations__item-link" to={AppRoute.Main}>
                                 <span>Amsterdam</span>
                             </Link>
                         </div>
@@ -73,7 +109,6 @@ function LoginPage(){
             </main>
         </div>
     );
-
 }
-export { LoginPage };
 
+export { LoginPage };

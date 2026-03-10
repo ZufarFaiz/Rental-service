@@ -1,6 +1,6 @@
+// components/cities-card-list/cities-card-list.tsx
 import type {OffersList} from "../../types/offer.ts";
 import {CitiesCard} from "../cities-card/cities-card.tsx";
-
 
 type CitiesCardListProps = {
     offersList: OffersList[];
@@ -29,8 +29,8 @@ function CitiesCardList({
                     type={item.type}
                     price={item.price}
                     previewImage={item.previewImage}
-                    isPremium={item.premium}
-                    isFavorite={item.favorite}
+                    isPremium={item.isPremium}
+                    isFavorite={item.isFavorite}  // 👈 Передаем isFavorite
                     rating={item.rating}
                     isNearby={isNearby}
                     onMouseOver={onOfferHover}

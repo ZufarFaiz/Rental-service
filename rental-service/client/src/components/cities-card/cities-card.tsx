@@ -1,7 +1,9 @@
-
-import {Link} from "react-router-dom";
-import {useState} from "react";
-import {AppRoute} from "../../conts.ts";
+// components/cities-card/cities-card.tsx
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { toggleFavoriteAction } from '../../store/api-action';
+import { AppRoute, AuthorizationStatus } from "../../conts.ts";
 import './cities-card.css'
 
 type CitiesCardProps = {
@@ -30,7 +32,12 @@ function CitiesCard({
                         isNearby = false,
                         onMouseOver,
                         onMouseOut
-                    }: CitiesCardProps){
+                    }: CitiesCardProps) {
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+    const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
+    const isAuthorized = authorizationStatus === AuthorizationStatus.Auth;
+
     const [, setActiveOfferId] = useState('');
 
     const handleMouseOver = () => {
@@ -47,6 +54,36 @@ function CitiesCard({
         }
     };
 
+    const handleFavoriteClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        console.log('🔥 Favorite clicked:', {
+            id,
+            isFavorite,
+            status: isFavorite ? 0 : 1,
+            isAuthorized
+        });
+
+        if (!isAuthorized) {
+            console.log('🚫 Not authorized, redirecting to login');
+            navigate(AppRoute.Login);
+            return;
+        }
+
+        dispatch(toggleFavoriteAction({
+            offerId: id,
+            status: isFavorite ? 0 : 1
+        }))
+            .unwrap()
+            .then(() => {
+                console.log('✅ Favorite toggled successfully');
+            })
+            .catch((error) => {
+                console.error('❌ Failed to toggle favorite:', error);
+            });
+    };
+
     const imageWrapperClass = isNearby
         ? "near-places__image-wrapper place-card__image-wrapper"
         : "cities__image-wrapper place-card__image-wrapper";
@@ -54,7 +91,6 @@ function CitiesCard({
     const articleClass = isNearby
         ? "near-places__card place-card"
         : "cities__card place-card";
-
 
     return (
         <article
@@ -68,16 +104,19 @@ function CitiesCard({
                 </div>
             )}
             <div className={imageWrapperClass}>
-                <Link to={`${AppRoute.Offer}/${id}`}>
+                <Link to={`/offer/${id}`}>
                     <div className="place-card__image-container">
-                    <img
-                        className="place-card__image"
-                        src={previewImage}
-                        width="260"
-                        height="200"
-                        alt="Place image"
-                        style={{ objectFit: 'cover' }}
-                    />
+                        <img
+                            className="place-card__image"
+                            src={previewImage}
+                            width="260"
+                            height="200"
+                            alt={title}
+                            style={{ objectFit: 'cover' }}
+                            onError={(e) => {
+                                e.currentTarget.src = '/img/default-placeholder.jpg';
+                            }}
+                        />
                     </div>
                 </Link>
             </div>
@@ -88,11 +127,18 @@ function CitiesCard({
                         <b className="place-card__price-value">&euro;{price}</b>
                         <span className="place-card__price-text">&#47;&nbsp;night</span>
                     </div>
-                    <button className={!isFavorite? "place-card__bookmark-button button": "place-card__bookmark-button place-card__bookmark-button--active button"} type="button">
+                    <button
+                        className={`place-card__bookmark-button button ${isFavorite ? 'place-card__bookmark-button--active' : ''}`}
+                        type="button"
+                        onClick={handleFavoriteClick}
+                    >
                         <svg className="place-card__bookmark-icon" width="18" height="19">
-                            <use xlinkHref="../../../public/img/icon-bookmark.svg"></use>
+                            {/* 👈 ИСПРАВЛЕНО: xlinkHref → href */}
+                            <use href="/img/icon-bookmark.svg"></use>
                         </svg>
-                        <span className="visually-hidden">To bookmarks</span>
+                        <span className="visually-hidden">
+                            {isFavorite ? 'In bookmarks' : 'To bookmarks'}
+                        </span>
                     </button>
                 </div>
                 <div className="place-card__rating rating">
@@ -102,7 +148,7 @@ function CitiesCard({
                     </div>
                 </div>
                 <h2 className="place-card__name">
-                    <Link to={`${AppRoute.Offer}/${id}`}>
+                    <Link to={`/offer/${id}`}>
                         {title}
                     </Link>
                 </h2>

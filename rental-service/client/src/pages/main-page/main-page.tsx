@@ -1,36 +1,41 @@
 import {Logo} from "../../components/logo/logo.tsx";
 import {CitiesCardList} from "../../components/cities-card-list/cities-card-list.tsx";
-import type {OffersList} from "../../types/offer.ts";
-import {cities} from "../../mocks/city.ts";
-import {useEffect, useState} from "react";
+import {useEffect, useState, useCallback} from "react";
 import Map from "../../components/map/map.tsx"
 import type {City, Point} from "../../types/city.ts";
 import {CitiesList} from "../../components/cities-list/cities-list.tsx";
-import {useAppSelector} from "../../hooks";
+import {useAppDispatch, useAppSelector} from "../../hooks";
 import {getOffersByCity, sortOffersByType} from "../../util.ts";
 import type {SortOffer} from "../../types/sort.ts";
 import {SortOptions} from "../../components/sort-options/sort-options.tsx";
+import {Link, useNavigate} from "react-router-dom";
+import {logoutAction} from "../../store/api-action";
+import {CITIES_LOCATION,AppRoute,AuthorizationStatus} from "../../conts.ts";
 
-type MainPageProps = {
-    rentalOffersCount: number;
-    offersList: OffersList[];
-}
+function MainPage() {
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
-function MainPage({offersList}: MainPageProps) {
-
+    // Селекторы из Redux store
+    const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
+    const user = useAppSelector((state) => state.user);
     const selectedCity = useAppSelector((state) => state.city);
     const offersListSelector = useAppSelector((state) => state.offers);
-    const selectedCityOffers = getOffersByCity(selectedCity?.title, offersListSelector);
-    const rentalOffersCount = selectedCityOffers.length;
-    const [activeSort, setActiveSort] = useState<SortOffer>('Popular')
 
+    // Вычисляем отфильтрованные предложения
+    const selectedCityOffers = getOffersByCity(selectedCity?.title || '', offersListSelector);
+    const rentalOffersCount = selectedCityOffers.length;
+
+    // Состояния
+    const [activeSort, setActiveSort] = useState<SortOffer>('Popular');
     const [selectedPoint, setSelectedPoint] = useState<Point | undefined>(undefined);
     const [city, setCity] = useState<City | null>(null);
     const [cityPoints, setCityPoints] = useState<Point[]>([]);
 
-    useEffect(() => {
+    // Функция обновления данных карты
+    const updateCityData = useCallback(() => {
         if (selectedCity?.title) {
-            const foundCity = cities.find((c: City) => c.title === selectedCity.title);
+            const foundCity = CITIES_LOCATION.find((c: City) => c.title === selectedCity.title);
             if (foundCity) {
                 setCity(foundCity);
             }
@@ -43,20 +48,41 @@ function MainPage({offersList}: MainPageProps) {
                 lng: offer.location.longitude,
             }));
             setCityPoints(points);
+            setSelectedPoint(undefined);
         }
     }, [selectedCity, offersListSelector]);
 
-    const handleOfferHover = (offerId: string) => {
+    // Эффект для обновления карты при смене города
+    useEffect(() => {
+        updateCityData();
+    }, [updateCityData]);
+
+    // Обработчики наведения на карточку
+    const handleOfferHover = useCallback((offerId: string) => {
         const offer = selectedCityOffers.find((o) => o.id === offerId);
         if (offer) {
             const point = cityPoints.find((p) => p.title === offer.title);
             setSelectedPoint(point);
         }
-    };
+    }, [selectedCityOffers, cityPoints]);
 
-    const handleOfferLeave = () => {
+    const handleOfferLeave = useCallback(() => {
         setSelectedPoint(undefined);
-    };
+    }, []);
+
+    // Обработчик выхода
+    const handleLogout = useCallback(async () => {
+        try {
+            await dispatch(logoutAction()).unwrap();
+            navigate(AppRoute.Main);
+        } catch (error) {
+            console.error('Logout failed:', error);
+            navigate(AppRoute.Main);
+        }
+    }, [dispatch, navigate]);
+
+    // Проверка авторизации
+    const isAuthorized = authorizationStatus === AuthorizationStatus.Auth;
 
     return (
         <div className="page page--gray page--main">
@@ -68,19 +94,58 @@ function MainPage({offersList}: MainPageProps) {
                         </div>
                         <nav className="header__nav">
                             <ul className="header__nav-list">
-                                <li className="header__nav-item user">
-                                    <a className="header__nav-link header__nav-link--profile" href="#">
-                                        <div className="header__avatar-wrapper user__avatar-wrapper">
-                                        </div>
-                                        <span className="header__user-name user__name">Myemail@gmail.com</span>
-                                        <span className="header__favorite-count">3</span>
-                                    </a>
-                                </li>
-                                <li className="header__nav-item">
-                                    <a className="header__nav-link" href="#">
-                                        <span className="header__signout">Sign out</span>
-                                    </a>
-                                </li>
+                                {isAuthorized ? (
+                                    // Авторизованный пользователь
+                                    <>
+                                        <li className="header__nav-item user">
+                                            <Link
+                                                className="header__nav-link header__nav-link--profile"
+                                                to={AppRoute.Favorites}
+                                            >
+                                                <div
+                                                    className="header__avatar-wrapper user__avatar-wrapper"
+                                                    style={user?.avatarUrl ? {
+                                                        backgroundImage: `url(${user.avatarUrl})`,
+                                                        borderRadius: '50%',
+                                                        backgroundSize: 'cover',
+                                                        backgroundPosition: 'center'
+                                                    } : {}}
+                                                >
+                                                </div>
+                                                <span className="header__user-name user__name">
+                                                    {user?.email || 'user@mail.com'}
+                                                </span>
+                                                <span className="header__favorite-count">
+                                                    {0}
+                                                </span>
+                                            </Link>
+                                        </li>
+                                        <li className="header__nav-item">
+                                            <a
+                                                className="header__nav-link"
+                                                href="#"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    handleLogout();
+                                                }}
+                                            >
+                                                <span className="header__signout">Sign out</span>
+                                            </a>
+                                        </li>
+                                    </>
+                                ) : (
+                                    // Гость
+                                    <li className="header__nav-item user">
+                                        <Link
+                                            className="header__nav-link header__nav-link--profile"
+                                            to={AppRoute.Login}
+                                        >
+                                            <div className="header__avatar-wrapper user__avatar-wrapper">
+                                            </div>
+                                            <span className="header__login">Sign in</span>
+                                        </Link>
+                                    </li>
+                                )}
                             </ul>
                         </nav>
                     </div>
@@ -98,10 +163,15 @@ function MainPage({offersList}: MainPageProps) {
                     <div className="cities__places-container container">
                         <section className="cities__places places">
                             <h2 className="visually-hidden">Places</h2>
-                            <b className="places__found">{rentalOffersCount} places to stay in {selectedCity?.title}</b>
-                            <SortOptions activeSorting={ activeSort } onChange={ (newSorting) => setActiveSort(newSorting) }/>
+                            <b className="places__found">
+                                {rentalOffersCount} place{rentalOffersCount !== 1 ? 's' : ''} to stay in {selectedCity?.title}
+                            </b>
+                            <SortOptions
+                                activeSorting={activeSort}
+                                onChange={(newSorting) => setActiveSort(newSorting)}
+                            />
                             <CitiesCardList
-                                offersList={sortOffersByType(selectedCityOffers,activeSort)}
+                                offersList={sortOffersByType(selectedCityOffers, activeSort)}
                                 isNearby={false}
                                 onOfferHover={handleOfferHover}
                                 onOfferLeave={handleOfferLeave}
