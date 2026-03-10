@@ -1,6 +1,7 @@
 import type {OffersList} from "../../types/offer.ts";
 import {CitiesCard} from "../cities-card/cities-card.tsx";
 
+
 type CitiesCardListProps = {
     offersList: OffersList[];
     isNearby?: boolean;

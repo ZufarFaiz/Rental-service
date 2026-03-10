@@ -2,6 +2,7 @@
 import {Link} from "react-router-dom";
 import {useState} from "react";
 import {AppRoute} from "../../conts.ts";
+import './cities-card.css'
 
 type CitiesCardProps = {
     id: string;
@@ -68,13 +69,16 @@ function CitiesCard({
             )}
             <div className={imageWrapperClass}>
                 <Link to={`${AppRoute.Offer}/${id}`}>
+                    <div className="place-card__image-container">
                     <img
                         className="place-card__image"
                         src={previewImage}
                         width="260"
                         height="200"
                         alt="Place image"
+                        style={{ objectFit: 'cover' }}
                     />
+                    </div>
                 </Link>
             </div>
 

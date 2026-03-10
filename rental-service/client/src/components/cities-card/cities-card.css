@@ -1,0 +1,17 @@
+.place-card__image-wrapper {
+    width: 100%;
+    overflow: hidden;
+}
+.place-card__image-container {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.place-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

@@ -19,7 +19,7 @@ function CitiesList({ selectedCity }: CitiesListProps) {
             {CITIES_LOCATION.map((city) => (
                 <li key={city.title} className="locations__item" onClick={() => dispatch(changeCity(city))}>
                     <Link
-                        className={`${city.title === selectedCity?.title ? 'tabs_item--active' : 'tabs_item--disable'} locations__item-link tabs__item`}
+                        className={`locations__item-link tabs__item ${city.title === selectedCity?.title ? 'tabs__item--active': ''}`}
                         to={AppRoute.Main}
                     >
                         <span>{city.title}</span>
