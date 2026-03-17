@@ -199,7 +199,7 @@ const postReviewAction = createAsyncThunk<void, {
 // Добавить/удалить из избранного
 const toggleFavoriteAction = createAsyncThunk<void, {
     offerId: string;
-    status: number; // 1 - добавить, 0 - удалить
+    status: boolean; // 👈 Изменяем с number на boolean
 }, {
     dispatch: AppDispatch;
     state: State;
@@ -210,15 +210,12 @@ const toggleFavoriteAction = createAsyncThunk<void, {
         try {
             console.log(`🔍 Toggling favorite for offer ${offerId} with status ${status}`);
 
-            // 👉 Проверяем URL
-            const url = `${APIRoute.Favorite}/${offerId}/${status}`;
+            const url = `${APIRoute.Favorite}/${offerId}/${status}`; // status будет true/false
             console.log('📡 Request URL:', url);
 
             const response = await api.post(url);
             console.log('✅ Toggle response:', response.data);
 
-            // После изменения перезагружаем списки
-            console.log('🔄 Reloading offers and favorites...');
             await dispatch(fetchOffersAction());
             await dispatch(fetchFavoritesAction());
 

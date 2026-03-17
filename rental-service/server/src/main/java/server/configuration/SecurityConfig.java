@@ -3,6 +3,7 @@ package server.configuration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -38,18 +39,31 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/users/login").permitAll()
-                        .requestMatchers("/api/users/register").permitAll()
-                        .requestMatchers("/api/offers").permitAll()
-                        .requestMatchers("/api/offers/**").permitAll()
-                        .requestMatchers("/static/**").permitAll()
 
-                        .requestMatchers("/api/users/check").permitAll()
-                        .requestMatchers("/api/users/logout").authenticated()
-                        .requestMatchers("/api/offers/create-offer").authenticated()
-                        .requestMatchers("/api/reviews/add-review").authenticated()
-                        .requestMatchers("/api/offers/*/favorite").authenticated()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api-docs/**").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
+
+
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+
+                        .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/offers").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/offers/**").permitAll()
+                        .requestMatchers("/static/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/check").permitAll()
+
+
+                        .requestMatchers(HttpMethod.POST, "/api/offers/create-offer").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/offers/*/favorite").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/logout").authenticated()
+
 
                         .anyRequest().authenticated()
                 )
@@ -113,6 +127,4 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
 }

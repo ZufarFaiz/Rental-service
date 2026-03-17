@@ -58,29 +58,31 @@ function CitiesCard({
         e.preventDefault();
         e.stopPropagation();
 
-        console.log('🔥 Favorite clicked:', {
-            id,
-            isFavorite,
-            status: isFavorite ? 0 : 1,
-            isAuthorized
+        const newStatus = !isFavorite;
+
+        console.log('🔥🔥🔥 FAVORITE CLICK DETAIL:', {
+            offerId: id,
+            currentStatus: isFavorite,
+            newStatusToSend: newStatus,
+            action: newStatus ? 'ADD to favorites' : 'REMOVE from favorites'
         });
 
         if (!isAuthorized) {
-            console.log('🚫 Not authorized, redirecting to login');
+            console.log('🚫 Not authorized');
             navigate(AppRoute.Login);
             return;
         }
 
         dispatch(toggleFavoriteAction({
             offerId: id,
-            status: isFavorite ? 0 : 1
+            status: newStatus
         }))
             .unwrap()
             .then(() => {
-                console.log('✅ Favorite toggled successfully');
+                console.log('✅ Toggle successful');
             })
             .catch((error) => {
-                console.error('❌ Failed to toggle favorite:', error);
+                console.error('❌ Toggle failed:', error);
             });
     };
 

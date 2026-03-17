@@ -66,7 +66,7 @@ function OfferPage() {
 
         dispatch(toggleFavoriteAction({
             offerId: currentOffer.id,
-            status: currentOffer.isFavorite ? 0 : 1
+            status: !currentOffer.isFavorite  // 👈 true/false
         }));
     };
 
