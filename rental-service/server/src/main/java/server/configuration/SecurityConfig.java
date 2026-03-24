@@ -56,13 +56,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/offers").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/offers/**").permitAll()
                         .requestMatchers("/static/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/check").permitAll()
 
 
                         .requestMatchers(HttpMethod.POST, "/api/offers/create-offer").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/reviews/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/offers/*/favorite").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/users/logout").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/users/check").authenticated()
 
 
                         .anyRequest().authenticated()

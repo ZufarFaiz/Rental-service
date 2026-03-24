@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { MainPage } from "../../pages/main-page/main-page";
 import { LoginPage } from "../../pages/login-page/login-page";
 import { FavoritesPages } from "../../pages/favorites-page/favorites-page";
@@ -31,17 +31,18 @@ function App({ rentalOffersCount, offers, offersList, reviews }: AppMainPageProp
             <Routes>
                 <Route path={AppRoute.Main} element={<MainPage offersList={offersList} />} />
                 <Route path={AppRoute.Login} element={<LoginPage />} />
-
                 <Route path={AppRoute.Offer} element={<OfferPage offers={offers} reviews={reviews} />} />
-
                 <Route path={AppRoute.Favorites} element={
                     <PrivateRoute authorizationStatus={AuthorizationStatus.Auth}>
                         <FavoritesPages offersList={offersList} />
                     </PrivateRoute>
                 } />
 
-                {/* ✅ NotFound должен быть последним */}
-                <Route path="*" element={<NotFound />} />
+                {/* ✅ Добавь явный путь для 404 */}
+                <Route path="/404" element={<NotFound />} />
+
+                {/* ✅ Все остальные пути идут на 404 */}
+                <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
         </BrowserRouter>
     );

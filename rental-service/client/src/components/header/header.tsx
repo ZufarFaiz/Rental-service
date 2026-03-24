@@ -26,6 +26,9 @@ function Header() {
         }
     };
 
+    console.log('👤 Header render - user:', user);
+    console.log('👤 Avatar URL:', user?.avatarUrl);
+
     return (
         <header className="header">
             <div className="container">

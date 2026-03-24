@@ -39,7 +39,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Не фильтруем публичные эндпоинты
         if (path.startsWith("/api/users/login") ||
                 path.startsWith("/api/users/register") ||
-                path.startsWith("/api/users/check") ||
                 path.startsWith("/static/") ||
                 path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs") ||

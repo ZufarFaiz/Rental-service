@@ -29,7 +29,7 @@ public class UserResponse {
     private UserType userType;
 
     @Schema(description = "URL аватара", example = "/static/avatar.jpg")
-    private String avatar;
+    private String avatarUrl;
 
     @Schema(description = "Дата создания", example = "2024-01-01T00:00:00")
     private LocalDateTime createdAt;

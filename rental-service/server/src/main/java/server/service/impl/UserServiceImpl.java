@@ -58,7 +58,7 @@ public class UserServiceImpl {
                 .id(savedUser.getId())
                 .email(savedUser.getEmail())
                 .username(savedUser.getUsername())
-                .avatar(savedUser.getAvatar() != null ?
+                .avatarUrl(savedUser.getAvatar() != null ?
                         "/static/" + savedUser.getAvatar() : null)
                 .isPro(savedUser.getUserType() == UserType.PRO)
                 .createdAt(user.getCreatedAt())
@@ -96,7 +96,7 @@ public class UserServiceImpl {
                 .id(user.getId())
                 .email(user.getEmail())
                 .username(user.getUsername())
-                .avatar(user.getAvatar())
+                .avatarUrl(user.getAvatar())
                 .isPro(user.getUserType() == server.model.enums.UserType.PRO)
                 .token(token)
                 .build();

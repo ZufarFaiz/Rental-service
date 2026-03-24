@@ -30,16 +30,36 @@ function FavoritesCard({
     const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
     const isAuthorized = authorizationStatus === AuthorizationStatus.Auth;
 
-    const handleFavoriteClick = () => {
+    const handleFavoriteClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const newStatus = !isFavorite;
+
+        console.log('🔥🔥🔥 FAVORITE CLICK DETAIL:', {
+            offerId: id,
+            currentStatus: isFavorite,
+            newStatusToSend: newStatus,
+            action: newStatus ? 'ADD to favorites' : 'REMOVE from favorites'
+        });
+
         if (!isAuthorized) {
+            console.log('🚫 Not authorized');
             navigate(AppRoute.Login);
             return;
         }
 
         dispatch(toggleFavoriteAction({
             offerId: id,
-            status: isFavorite ? 0 : 1
-        }));
+            status: newStatus  // ← boolean, как в CitiesCard
+        }))
+            .unwrap()
+            .then(() => {
+                console.log('✅ Toggle successful');
+            })
+            .catch((error) => {
+                console.error('❌ Toggle failed:', error);
+            });
     };
 
     return(
@@ -51,16 +71,19 @@ function FavoritesCard({
             )}
             <div className="favorites__image-wrapper place-card__image-wrapper">
                 <Link to={`/offer/${id}`}>
-                    <img
-                        className="place-card__image"
-                        src={previewImage}
-                        width="150"
-                        height="110"
-                        alt={title}
-                        onError={(e) => {
-                            e.currentTarget.src = '/img/default-placeholder.jpg';
-                        }}
-                    />
+                    <div className="place-card__image-container">
+                        <img
+                            className="place-card__image"
+                            src={previewImage}
+                            width="150"
+                            height="110"
+                            alt={title}
+                            style={{ objectFit: 'cover' }}
+                            onError={(e) => {
+                                e.currentTarget.src = '/img/default-placeholder.jpg';
+                            }}
+                        />
+                    </div>
                 </Link>
             </div>
             <div className="favorites__card-info place-card__info">
@@ -75,7 +98,7 @@ function FavoritesCard({
                         onClick={handleFavoriteClick}
                     >
                         <svg className="place-card__bookmark-icon" width="18" height="19">
-                            <use href="#icon-bookmark"></use>
+                            <use href="/img/icon-bookmark.svg"></use>
                         </svg>
                         <span className="visually-hidden">
                             {isFavorite ? 'In bookmarks' : 'To bookmarks'}
