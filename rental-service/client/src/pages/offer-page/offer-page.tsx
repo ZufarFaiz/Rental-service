@@ -10,6 +10,8 @@ import { ReviewsList } from '../../components/review-list/review-list';
 import { ReviewForm } from '../../components/review-form/review-form';
 import type { City as CityType, Point } from '../../types/city';
 import { AppRoute, AuthorizationStatus } from '../../conts.ts';
+import {Header} from "../../components/header/header.tsx";
+import {getAvatarUrl} from "../../util.ts";
 
 function OfferPage() {
     const { id } = useParams<{ id: string }>();
@@ -139,65 +141,7 @@ function OfferPage() {
 
     return (
         <div className="page">
-            <header className="header">
-                <div className="container">
-                    <div className="header__wrapper">
-                        <div className="header__left">
-                            <Logo />
-                        </div>
-                        <nav className="header__nav">
-                            <ul className="header__nav-list">
-                                {isAuthorized ? (
-                                    <>
-                                        <li className="header__nav-item user">
-                                            <Link
-                                                className="header__nav-link header__nav-link--profile"
-                                                to={AppRoute.Favorites}
-                                            >
-                                                <div
-                                                    className="header__avatar-wrapper user__avatar-wrapper"
-                                                    style={user?.avatarUrl ? {
-                                                        backgroundImage: `url(${user.avatarUrl})`,
-                                                        borderRadius: '50%',
-                                                        backgroundSize: 'cover',
-                                                        backgroundPosition: 'center'
-                                                    } : {}}
-                                                />
-                                                <span className="header__user-name user__name">
-                                                    {user?.email || 'user@mail.com'}
-                                                </span>
-                                                <span className="header__favorite-count">{favoritesCount}</span>
-                                            </Link>
-                                        </li>
-                                        <li className="header__nav-item">
-                                            <a
-                                                className="header__nav-link"
-                                                href="#"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    handleLogout();
-                                                }}
-                                            >
-                                                <span className="header__signout">Sign out</span>
-                                            </a>
-                                        </li>
-                                    </>
-                                ) : (
-                                    <li className="header__nav-item user">
-                                        <Link
-                                            className="header__nav-link header__nav-link--profile"
-                                            to={AppRoute.Login}
-                                        >
-                                            <div className="header__avatar-wrapper user__avatar-wrapper" />
-                                            <span className="header__login">Sign in</span>
-                                        </Link>
-                                    </li>
-                                )}
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </header>
+           <Header/>
 
             <main className="page__main page__main--offer">
                 <section className="offer">
@@ -283,10 +227,16 @@ function OfferPage() {
                                         {currentOffer.host?.avatarUrl && (
                                             <img
                                                 className="offer__avatar user__avatar"
-                                                src={currentOffer.host.avatarUrl}
+                                                src={getAvatarUrl(currentOffer.host?.avatarUrl)}
                                                 width="74"
                                                 height="74"
                                                 alt="Host avatar"
+                                                style={{
+                                                    objectFit: 'cover',
+                                                    borderRadius: '50%',
+                                                    width: '74px',
+                                                    height: '74px'
+                                                }}
                                                 onError={(e) => {
                                                     e.currentTarget.src = '/img/default-avatar.jpg';
                                                 }}

@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import server.model.dto.request.RegisterRequest;
 import server.model.dto.response.AuthResponse;
 import server.model.dto.response.UserResponse;
 import server.service.impl.UserServiceImpl;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 
@@ -66,10 +68,13 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = AuthResponse.class))),
             @ApiResponse(responseCode = "401", description = "Неверный email или пароль")
     })
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request){
+    public ResponseEntity<AuthResponse> login(HttpEntity<String> httpEntity) {
+
+        ObjectMapper mapper = new ObjectMapper();
+        LoginRequest request = mapper.readValue(httpEntity.getBody(), LoginRequest.class);
+
         return ResponseEntity.ok(userService.login(request));
     }
-
     @GetMapping("/check")
     @Operation(
             summary = "Проверка авторизации",

@@ -29,9 +29,14 @@ export const createAPI = (): AxiosInstance => {
         (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
             const token = getToken();
 
+            console.log('🔑 createAPI interceptor - token from localStorage:', token ? token.substring(0, 50) + '...' : 'NOT FOUND');
+
             if (token) {
                 config.headers = config.headers || {};
                 config.headers['Authorization'] = `Bearer ${token}`;
+                console.log('🔑 Added Authorization header:', config.headers['Authorization']);
+            } else {
+                console.warn('⚠️ No token found in localStorage!');
             }
 
             return config;

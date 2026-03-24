@@ -81,6 +81,8 @@ public class UserServiceImpl {
 
         return AuthResponse.builder()
                 .token(token)
+                .email(user.getEmail())
+                .avatarUrl(user.getAvatar())
                 .build();
     }
 

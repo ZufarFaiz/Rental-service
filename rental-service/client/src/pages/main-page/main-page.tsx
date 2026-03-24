@@ -1,4 +1,3 @@
-import {Logo} from "../../components/logo/logo.tsx";
 import {CitiesCardList} from "../../components/cities-card-list/cities-card-list.tsx";
 import {useEffect, useState, useCallback} from "react";
 import Map from "../../components/map/map.tsx"
@@ -11,6 +10,7 @@ import {SortOptions} from "../../components/sort-options/sort-options.tsx";
 import {Link, useNavigate} from "react-router-dom";
 import {logoutAction} from "../../store/api-action";
 import {CITIES_LOCATION,AppRoute,AuthorizationStatus} from "../../conts.ts";
+import {Header} from "../../components/header/header.tsx";
 
 function MainPage() {
     const dispatch = useAppDispatch();
@@ -86,71 +86,7 @@ function MainPage() {
 
     return (
         <div className="page page--gray page--main">
-            <header className="header">
-                <div className="container">
-                    <div className="header__wrapper">
-                        <div className="header__left">
-                            <Logo/>
-                        </div>
-                        <nav className="header__nav">
-                            <ul className="header__nav-list">
-                                {isAuthorized ? (
-                                    // Авторизованный пользователь
-                                    <>
-                                        <li className="header__nav-item user">
-                                            <Link
-                                                className="header__nav-link header__nav-link--profile"
-                                                to={AppRoute.Favorites}
-                                            >
-                                                <div
-                                                    className="header__avatar-wrapper user__avatar-wrapper"
-                                                    style={user?.avatarUrl ? {
-                                                        backgroundImage: `url(${user.avatarUrl})`,
-                                                        borderRadius: '50%',
-                                                        backgroundSize: 'cover',
-                                                        backgroundPosition: 'center'
-                                                    } : {}}
-                                                >
-                                                </div>
-                                                <span className="header__user-name user__name">
-                                                    {user?.email || 'user@mail.com'}
-                                                </span>
-                                                <span className="header__favorite-count">
-                                                    {0}
-                                                </span>
-                                            </Link>
-                                        </li>
-                                        <li className="header__nav-item">
-                                            <a
-                                                className="header__nav-link"
-                                                href="#"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    handleLogout();
-                                                }}
-                                            >
-                                                <span className="header__signout">Sign out</span>
-                                            </a>
-                                        </li>
-                                    </>
-                                ) : (
-                                    // Гость
-                                    <li className="header__nav-item user">
-                                        <Link
-                                            className="header__nav-link header__nav-link--profile"
-                                            to={AppRoute.Login}
-                                        >
-                                            <div className="header__avatar-wrapper user__avatar-wrapper">
-                                            </div>
-                                            <span className="header__login">Sign in</span>
-                                        </Link>
-                                    </li>
-                                )}
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </header>
+            <Header/>
 
             <main className="page__main page__main--index">
                 <h1 className="visually-hidden">Cities</h1>

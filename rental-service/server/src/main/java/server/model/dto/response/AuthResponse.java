@@ -16,4 +16,10 @@ public class AuthResponse {
     @Schema(description = "JWT токен для авторизации",
             example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
     private String token;
+
+    @Schema(description = "Email", example = "user@example.com")
+    private String email;
+
+    @Schema(description = "URL аватара", example = "/static/avatar.jpg")
+    private String avatarUrl;
 }

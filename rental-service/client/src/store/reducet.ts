@@ -1,4 +1,4 @@
-// store/reducer.ts
+// store/reducet.ts
 import { createReducer } from '@reduxjs/toolkit';
 import {
     changeCity,

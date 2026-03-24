@@ -48,6 +48,8 @@ const loginAction = createAsyncThunk<
         try {
             const { data } = await api.post<UserData>(APIRoute.Login, { email, password });
 
+            console.log('🔑 Login response data:', data);  // ← Добавь
+
             if (data.token) {
                 saveToken(data.token);
             }
@@ -55,8 +57,11 @@ const loginAction = createAsyncThunk<
             dispatch(requireAuthorization(AuthorizationStatus.Auth));
             dispatch(setUser(data));
 
+            console.log('👤 User set in store:', data);  // ← Добавь
+
             return data;
         } catch (err) {
+            console.error('❌ Login error:', err);  // ← Добавь
             dropToken();
             dispatch(requireAuthorization(AuthorizationStatus.NoAuth));
             dispatch(setUser(null));

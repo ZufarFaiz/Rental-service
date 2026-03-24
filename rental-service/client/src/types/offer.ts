@@ -1,17 +1,17 @@
 
 
-type OfferLocation = {
+export type OfferLocation = {
     latitude: number;
     longitude: number;
     zoom: number;
 };
 
-type CityOffer = {
+export type CityOffer = {
     name: string;
     location: OfferLocation;
 };
 
-type HostOffer = {
+export type HostOffer = {
     name: string;
     avatarUrl: string;
     isPro: boolean;

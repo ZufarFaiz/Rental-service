@@ -37,15 +37,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // Не фильтруем публичные эндпоинты
-        return path.startsWith("/api/users/login") ||
+        if (path.startsWith("/api/users/login") ||
                 path.startsWith("/api/users/register") ||
                 path.startsWith("/api/users/check") ||
-                path.startsWith("/api/offers") ||
-                path.startsWith("/static/")||
+                path.startsWith("/static/") ||
                 path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/api-docs") ||
-                path.startsWith("/webjars");
+                path.startsWith("/webjars")) {
+            return true;
+        }
+
+        // GET /api/offers — публичный
+        if (path.equals("/api/offers") && method.equals("GET")) {
+            return true;
+        }
+
+        // Всё остальное — защищённое
+        return false;
+
     }
 
     @Override
@@ -55,11 +65,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // Этот код выполняется ТОЛЬКО для защищенных эндпоинтов
+        System.out.println("🔥🔥🔥 JwtAuthenticationFilter ВХОД! Path: " + request.getServletPath());
+        System.out.println("Authorization header: " + request.getHeader("Authorization"));
+
+        // ✅ 1. СНАЧАЛА проверяем, нужно ли фильтровать
+        if (shouldNotFilter(request)) {
+            System.out.println("🔓 Публичный эндпоинт - пропускаем: " + request.getServletPath());
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        System.out.println("🔒 Защищенный эндпоинт - проверяем токен: " + request.getServletPath());
+
+        // ✅ 2. Дальше только для защищенных эндпоинтов
         try {
             final String authHeader = request.getHeader("Authorization");
 
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                System.out.println("❌ Токен не предоставлен или неверный формат");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
                 response.getWriter().write("{\"message\": \"Токен не предоставлен\"}");
@@ -68,11 +91,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             final String token = authHeader.substring(7);
             final String userEmail = jwtService.extractUsername(token);
+            System.out.println("Email из токена: " + userEmail);
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                System.out.println("UserDetails загружен: " + (userDetails != null));
 
                 if (jwtService.isTokenValid(token, userDetails)) {
+                    System.out.println("✅ Токен валидный");
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -82,15 +108,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     request.setAttribute("user", userDetails.getUsername());
+                    System.out.println("✅ Аутентификация установлена для: " + userDetails.getUsername());
+                } else {
+                    System.out.println("❌ Токен невалидный");
                 }
             }
 
             filterChain.doFilter(request, response);
 
         } catch (ExpiredJwtException | MalformedJwtException | SignatureException e) {
+            System.out.println("❌ Ошибка JWT: " + e.getClass().getSimpleName());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"message\": \"Недействительный токен\"}");
         }
+
+        System.out.println("=== Конец фильтра ===\n");
     }
 }
